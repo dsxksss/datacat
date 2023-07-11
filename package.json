@@ -17,8 +17,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "hello-world.showHelloWorld",
-        "title": "Hello World (Vue): Show"
+        "command": "datacat.showCreateConnection",
+        "title": "连接数据库",
+        "category": "DataCat数据猫🐱"
       }
     ]
   },
