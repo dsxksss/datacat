@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* ::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: #1f2937;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #6e6e6e;
+} */

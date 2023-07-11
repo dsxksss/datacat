@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0.33
+    # restart: always
+    container_name: datacat_mysql8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - test_db_sql_dir:/test_db

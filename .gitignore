@@ -1,0 +1,9 @@
+node_modules
+.vscode-test/
+*.vsix
+
+# logfile
+*.log
+
+# build file
+out
