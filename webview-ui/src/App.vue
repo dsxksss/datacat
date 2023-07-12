@@ -10,6 +10,8 @@ const host = ref("localhost");
 const port = ref(3306);
 const dialect = ref("");
 
+const result = ref("对方还没有回应");
+
 const dialectOptions = [
   "mysql"
 ]
@@ -32,8 +34,13 @@ function createConnection() {
     port: port.value,
     dialect: dialect.value
   });
-
 }
+
+window.addEventListener('message', event => {
+  const message = event.data;
+  result.value = message
+});
+
 </script>
 
 <template>
@@ -65,6 +72,9 @@ function createConnection() {
     </div>
 
     <button class="btn" @click="createConnection">Create Connection</button>
+    <div>
+      <pre>{{ result }}</pre>
+    </div>
 
   </main>
 </template>

@@ -15,6 +15,26 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vs-sidebar-view",
+          "title": "DataCat数据猫🐱",
+          "icon": "public/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "vs-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "vs-sidebar-view",
+          "name": "创建连接",
+          "icon": "public/icon.svg",
+          "contextualTitle": "创建连接"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "datacat.showCreateConnection",
