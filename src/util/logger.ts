@@ -14,10 +14,10 @@ const logger = createLogger({
     ),
     transports: [
         new transports.Console(),
-        new transports.File({ filename: join(__dirname, 'datacat-error.log'), level: 'error' }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat-error.log'), level: 'error' }),
         // debug级别的日志一般为seqielize层面的操作
-        new transports.File({ filename: join(__dirname, 'datacat-debug.log'), level: 'debug' }),
-        new transports.File({ filename: join(__dirname, 'datacat.log') }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat-debug.log'), level: 'debug' }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat.log') }),
     ],
 });
 

@@ -35,6 +35,7 @@ const createConnectionEvent = async (message: any) => {
 
 
     window.showInformationMessage(`数据库连接已创建：${connectionName}`);
+    logger.info(`数据库连接已创建：${connectionName}`);
     console.log(result);
 
     return result;
