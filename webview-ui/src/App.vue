@@ -8,12 +8,17 @@ const username = ref("root");
 const password = ref("root");
 const host = ref("localhost");
 const port = ref(3306);
-const dialect = ref("");
+const dialect = ref("mysql");
+const loading = ref(false);
 
 const result = ref("对方还没有回应");
 
 const dialectOptions = [
-  "mysql"
+  "mysql",
+  "postgresql",
+  "mongodb",
+  "sqlite",
+  "redis",
 ]
 
 function handleHowdyClick() {
@@ -24,6 +29,7 @@ function handleHowdyClick() {
 }
 
 function createConnection() {
+  loading.value = true;
   vscode.postMessage({
     command: "create-connection",
     connectionName: connectionName.value,
@@ -39,12 +45,14 @@ function createConnection() {
 window.addEventListener('message', event => {
   const message = event.data;
   result.value = message
+  loading.value = false;
 });
 
 </script>
 
 <template>
   <main class=" space-y-5">
+    
     <button class="btn" @click="handleHowdyClick">Hello</button>
     <div>连接名称：
       <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="connectionName">
@@ -71,7 +79,8 @@ window.addEventListener('message', event => {
       </select>
     </div>
 
-    <button class="btn" @click="createConnection">Create Connection</button>
+    <button class="btn" @click="createConnection" :disabled="loading" >
+      Create Connection</button>
     <div>
       <pre>{{ result }}</pre>
     </div>

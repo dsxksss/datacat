@@ -1,13 +1,17 @@
-import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri, window } from "vscode";
+import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri, window, ExtensionContext } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { createConnectionEvent } from "../events/connection";
+import logger from "../util/logger";
 
 export class SidebarProvider implements WebviewViewProvider {
   _panel?: WebviewView;
   _doc?: TextDocument;
 
-  constructor(private readonly _extensionUri: Uri) { }
+  constructor(
+    private readonly _extensionUri: Uri,
+    private readonly _context: ExtensionContext,
+  ) { }
 
   public resolveWebviewView(webviewView: WebviewView) {
     this._panel = webviewView;
@@ -28,9 +32,21 @@ export class SidebarProvider implements WebviewViewProvider {
           window.showInformationMessage(text);
           return;
         case "create-connection":
-          const data = await createConnectionEvent(message);
+          let data;
+
+          if (this._context.globalState.keys().includes(message.connectionName)) {
+            data = this._context.globalState.get(message.connectionName);
+            window.showErrorMessage("连接已存在!");
+            await webviewView.webview.postMessage(data);
+            return;
+          }
+
+
+          data = await createConnectionEvent(message);
+          this._context.globalState.update(message.connectionName, data);
           await webviewView.webview.postMessage(data);
           return;
+
       }
     });
   }

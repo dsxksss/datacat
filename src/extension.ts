@@ -12,6 +12,6 @@ export function activate(context: ExtensionContext) {
   }));
 
   context.subscriptions.push(
-    window.registerWebviewViewProvider("vs-sidebar-view", new SidebarProvider(context.extensionUri)),
+    window.registerWebviewViewProvider("vs-sidebar-view", new SidebarProvider(context.extensionUri, context)),
   );
 }
