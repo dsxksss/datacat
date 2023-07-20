@@ -9,6 +9,7 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
+			// 在启动调试之前将运行 watch task
 			"preLaunchTask": "watch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
