@@ -2,7 +2,7 @@ import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri, window, E
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { createConnectionEvent } from "../events/connection";
-import logger from "../util/logger";
+import { globalProviderManager } from "../util/globalProviderManager";
 
 export class SidebarProvider implements WebviewViewProvider {
   _panel?: WebviewView;
@@ -10,11 +10,11 @@ export class SidebarProvider implements WebviewViewProvider {
 
   constructor(
     private readonly _extensionUri: Uri,
-    private readonly _context: ExtensionContext,
   ) { }
 
   public resolveWebviewView(webviewView: WebviewView) {
     this._panel = webviewView;
+    globalProviderManager.set("sidebarWebview", webviewView);
 
     webviewView.webview.options = {
       // 在 webview 允许脚本
@@ -25,28 +25,15 @@ export class SidebarProvider implements WebviewViewProvider {
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
     webviewView.webview.onDidReceiveMessage(async (message: any) => {
       const command = message.command;
-      const text = message.text;
 
       switch (command) {
-        case "hello":
-          window.showInformationMessage(text);
-          return;
         case "create-connection":
-          let data;
-
-          if (this._context.globalState.keys().includes(message.connectionName)) {
-            data = this._context.globalState.get(message.connectionName);
-            window.showErrorMessage("连接已存在!");
-            await webviewView.webview.postMessage(data);
-            return;
-          }
-
-
-          data = await createConnectionEvent(message);
-          this._context.globalState.update(message.connectionName, data);
-          await webviewView.webview.postMessage(data);
+          await createConnectionEvent(message);
           return;
-
+        case "clear-connection":
+          // 清空上下文
+          const context = globalProviderManager.get("extensionContext");
+          context.globalState.keys().forEach((key: string) => context.globalState.update(key, undefined));
       }
     });
   }

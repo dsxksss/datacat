@@ -19,19 +19,24 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "vs-sidebar-view",
+          "id": "sidebar-container",
           "title": "DataCat数据猫🐱",
           "icon": "public/icon.svg"
         }
       ]
     },
     "views": {
-      "vs-sidebar-view": [
+      "sidebar-container": [
+        {
+          "type": "tree",
+          "id": "list-connection",
+          "name": "连接列表",
+          "contextualTitle": "连接列表"
+        },
         {
           "type": "webview",
-          "id": "vs-sidebar-view",
+          "id": "create-connection",
           "name": "创建连接",
-          "icon": "public/icon.svg",
           "contextualTitle": "创建连接"
         }
       ]

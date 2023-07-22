@@ -21,13 +21,6 @@ const dialectOptions = [
   "redis",
 ]
 
-function handleHowdyClick() {
-  vscode.postMessage({
-    command: "hello",
-    text: "Hey there partner! 🤠",
-  });
-}
-
 function createConnection() {
   loading.value = true;
   vscode.postMessage({
@@ -42,6 +35,12 @@ function createConnection() {
   });
 }
 
+function clearConnection() {
+  vscode.postMessage({
+    command: "clear-connection"
+  })
+}
+
 window.addEventListener('message', event => {
   const message = event.data;
   result.value = message
@@ -52,8 +51,6 @@ window.addEventListener('message', event => {
 
 <template>
   <main class=" space-y-5">
-    
-    <button class="btn" @click="handleHowdyClick">Hello</button>
     <div>连接名称：
       <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="connectionName">
     </div>
@@ -79,8 +76,10 @@ window.addEventListener('message', event => {
       </select>
     </div>
 
-    <button class="btn" @click="createConnection" :disabled="loading" >
+    <button class="btn" @click="createConnection" :disabled="loading">
       Create Connection</button>
+    <button class="btn" @click="clearConnection" :disabled="loading">
+      Clear Connection</button>
     <div>
       <pre>{{ result }}</pre>
     </div>

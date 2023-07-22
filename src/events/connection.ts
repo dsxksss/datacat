@@ -2,8 +2,21 @@ import { window } from 'vscode';
 import logger from '../util/logger';
 import { QueryTypes } from 'sequelize';
 import { connectionManager, createDBConnection } from '../util/connectionManager';
+import { globalProviderManager } from '../util/globalProviderManager';
 
-const createConnectionEvent = async (message: any) => {
+export const createConnectionEvent = async (message: any) => {
+    const context = globalProviderManager.get("extensionContext");
+    const webviewView = globalProviderManager.get("sidebarWebview");
+
+    // 当连接存在情况下
+    if (context.globalState.keys().includes(message.connectionName)) {
+        const data = context.globalState.get(message.connectionName);
+        window.showErrorMessage("连接已存在!");
+        webviewView.webview.postMessage(data);
+        return;
+    }
+
+
     const result: { [key: string]: any } = {};
 
     const { connectionName, database, username, password, host, port, dialect } = message;
@@ -19,8 +32,6 @@ const createConnectionEvent = async (message: any) => {
     );
 
     const tableNames = tables.map((row: any) => row[`TABLE_NAME`]);
-    console.log(tables);
-    console.log(tableNames);
 
     for (const tableName of tableNames) {
         const data = await connection1.query(
@@ -36,9 +47,14 @@ const createConnectionEvent = async (message: any) => {
 
     window.showInformationMessage(`数据库连接已创建：${connectionName}`);
     logger.info(`数据库连接已创建：${connectionName}`);
-    console.log(result);
 
-    return result;
+
+    context.globalState.update(message.connectionName, result);
+    let datacatCnnectionList: string[] = [];
+    if (context.globalState.keys().includes("datacat-cnnection-list")){
+        datacatCnnectionList = context.globalState.get("datacat-cnnection-list");
+        datacatCnnectionList.push(connectionName);
+    }
+    context.globalState.update("datacat-cnnection-list", datacatCnnectionList);
+    webviewView.webview.postMessage(result);
 };
-
-export { createConnectionEvent };

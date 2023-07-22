@@ -1,17 +1,28 @@
 import { ExtensionContext, window, commands } from "vscode";
-import { SidebarProvider } from "./panels/SidebarProvider";
+import { SidebarProvider } from "./provide/SidebarProvider";
+import { ConnListTreeOrivuder } from "./provide/TreeProvider";
 import { CreateConnectionPanel } from "./panels/CreateConnectionPanel";
-
+import { globalProviderManager } from "./util/globalProviderManager";
 import logger from './util/logger';
 
 export function activate(context: ExtensionContext) {
   logger.info("数据猫已激活");
-  
+  globalProviderManager.set("extensionContext", context);
+  console.log(context.globalState.keys());
+
   context.subscriptions.push(commands.registerCommand("datacat.showCreateConnection", () => {
     CreateConnectionPanel.render(context.extensionUri);
   }));
 
+  // 注册侧边栏webview窗口容器
   context.subscriptions.push(
-    window.registerWebviewViewProvider("vs-sidebar-view", new SidebarProvider(context.extensionUri, context)),
+    window.registerWebviewViewProvider("create-connection", new SidebarProvider(context.extensionUri)),
   );
+
+  const treeProvider = new ConnListTreeOrivuder(context.globalState);
+  context.subscriptions.push(window.registerTreeDataProvider('list-connection', treeProvider));
+
+  context.subscriptions.push(commands.registerCommand('datacat.refreshTreeView', () => {
+    treeProvider.refresh();
+  }));
 }
