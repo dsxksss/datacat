@@ -44,10 +44,24 @@
     "commands": [
       {
         "command": "datacat.showCreateConnection",
-        "title": "连接数据库",
+        "title": "创建连接",
+        "category": "DataCat数据猫🐱"
+      },
+      {
+        "command": "datacat.refreshListConnTreeView",
+        "title": "刷新连接",
         "category": "DataCat数据猫🐱"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "datacat.refreshListConnTreeView",
+          "when": "view == list-connection",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",

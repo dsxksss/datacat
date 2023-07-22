@@ -22,7 +22,7 @@ export function activate(context: ExtensionContext) {
   const treeProvider = new ConnListTreeOrivuder(context.globalState);
   context.subscriptions.push(window.registerTreeDataProvider('list-connection', treeProvider));
 
-  context.subscriptions.push(commands.registerCommand('datacat.refreshTreeView', () => {
+  context.subscriptions.push(commands.registerCommand('datacat.refreshListConnTreeView', () => {
     treeProvider.refresh();
   }));
 }
