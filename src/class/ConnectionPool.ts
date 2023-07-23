@@ -1,5 +1,7 @@
 import { Dialect, Sequelize } from 'sequelize';
+import { globalProviderManager } from '../util/globalProviderManager';
 import logger from '../util/logger';
+import { Webview, window } from 'vscode';
 
 export default class ConnectionPool {
     private readonly pool;
@@ -44,6 +46,8 @@ export default class ConnectionPool {
     }
 
     static async createDBConnection(database: string, username: string, password: string, host: string, port: number, dialect: Dialect): Promise<Sequelize> {
+        const sidebarWebview: Webview = globalProviderManager.get("sidebarWebview");
+
         try {
             const sequelize = new Sequelize(database, username, password, {
                 host,
@@ -55,7 +59,10 @@ export default class ConnectionPool {
             logger.info(`用户[${username}:${password}]建立数据库连接成功:database:[${database}] host:[${host}:${port}] dialect:[${dialect}]`);
             return sequelize;
         } catch (error: any) {
-            logger.error(`建立数据库连接失败 ${error}`);
+            const errorMsg = `建立数据库连接失败 ${error}`;
+            logger.error(errorMsg);
+            sidebarWebview.postMessage(errorMsg);
+            window.showErrorMessage(errorMsg);
             throw new Error(error);
         }
     }

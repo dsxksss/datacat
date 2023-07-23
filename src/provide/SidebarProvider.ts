@@ -14,7 +14,7 @@ export class SidebarProvider implements WebviewViewProvider {
 
   public resolveWebviewView(webviewView: WebviewView) {
     this._panel = webviewView;
-    globalProviderManager.set("sidebarWebview", webviewView);
+    globalProviderManager.set("sidebarWebview", webviewView.webview);
 
     webviewView.webview.options = {
       // 在 webview 允许脚本

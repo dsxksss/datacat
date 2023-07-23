@@ -1,4 +1,4 @@
-import { window } from 'vscode';
+import { Webview, window } from 'vscode';
 import logger from '../util/logger';
 import { QueryTypes } from 'sequelize';
 import { connectionManager, createDBConnection } from '../util/connectionManager';
@@ -6,13 +6,13 @@ import { globalProviderManager } from '../util/globalProviderManager';
 
 export const createConnectionEvent = async (message: any) => {
     const context = globalProviderManager.get("extensionContext");
-    const webviewView = globalProviderManager.get("sidebarWebview");
+    const sidebarWebview: Webview = globalProviderManager.get("sidebarWebview");
 
     // 当连接存在情况下
     if (context.globalState.keys().includes(message.connectionName)) {
         const data = context.globalState.get(message.connectionName);
         window.showErrorMessage("连接已存在!");
-        webviewView.webview.postMessage(data);
+        sidebarWebview.postMessage(data);
         return;
     }
 
@@ -51,10 +51,14 @@ export const createConnectionEvent = async (message: any) => {
 
     context.globalState.update(message.connectionName, result);
     let datacatCnnectionList: string[] = [];
-    if (context.globalState.keys().includes("datacat-cnnection-list")){
+    if (context.globalState.keys().includes("datacat-cnnection-list")) {
         datacatCnnectionList = context.globalState.get("datacat-cnnection-list");
+    }
+
+    if (!datacatCnnectionList.includes(connectionName)) {
         datacatCnnectionList.push(connectionName);
     }
+
     context.globalState.update("datacat-cnnection-list", datacatCnnectionList);
-    webviewView.webview.postMessage(result);
+    sidebarWebview.postMessage(result);
 };
