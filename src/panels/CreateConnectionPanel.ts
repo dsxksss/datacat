@@ -1,7 +1,7 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
-import { connectionManager, createDBConnection } from "../util/connectionManager";
+import { connectionManager, createDBConnection } from "../instance/connectionManager";
 
 export class CreateConnectionPanel {
   public static currentPanel: CreateConnectionPanel | undefined;

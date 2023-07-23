@@ -2,8 +2,8 @@ import { ExtensionContext, window, commands } from "vscode";
 import { SidebarProvider } from "./provide/SidebarProvider";
 import { ConnListTreeOrivuder } from "./provide/TreeProvider";
 import { CreateConnectionPanel } from "./panels/CreateConnectionPanel";
-import { globalProviderManager } from "./util/globalProviderManager";
-import logger from './util/logger';
+import { globalProviderManager } from "./instance/globalProviderManager";
+import logger from './instance/logger';
 
 export function activate(context: ExtensionContext) {
   logger.info("数据猫已激活");

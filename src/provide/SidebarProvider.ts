@@ -1,8 +1,8 @@
 import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri, window, ExtensionContext } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
-import { createConnectionEvent } from "../events/connection";
-import { globalProviderManager } from "../util/globalProviderManager";
+import { createConnectionEvent, clearConnectionEvent } from "../events/connection";
+import { globalProviderManager } from "../instance/globalProviderManager";
 
 export class SidebarProvider implements WebviewViewProvider {
   _panel?: WebviewView;
@@ -28,12 +28,9 @@ export class SidebarProvider implements WebviewViewProvider {
 
       switch (command) {
         case "create-connection":
-          await createConnectionEvent(message);
-          return;
+          return await createConnectionEvent(message);
         case "clear-connection":
-          // 清空上下文
-          const context = globalProviderManager.get("extensionContext");
-          context.globalState.keys().forEach((key: string) => context.globalState.update(key, undefined));
+          return clearConnectionEvent();
       }
     });
   }
