@@ -1,6 +1,6 @@
 import { Dialect, Sequelize } from 'sequelize';
 import { globalProviderManager } from '../instance/globalProviderManager';
-import logger from '../instance/logger';
+import { logger } from '../instance/logger';
 import { Webview, window } from 'vscode';
 
 export default class ConnectionPool {
@@ -41,7 +41,7 @@ export default class ConnectionPool {
         }
     }
 
-    getPoolNames(): Array<string> {
+    getPoolNameList(): Array<string> {
         return [...this.pool.keys()];
     }
 

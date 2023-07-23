@@ -1,5 +1,5 @@
 import { Webview, window, commands } from 'vscode';
-import logger from '../instance/logger';
+import { logger } from '../instance/logger';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { connectionManager, createDBConnection } from '../instance/connectionManager';
 import { globalProviderManager } from '../instance/globalProviderManager';
@@ -43,8 +43,9 @@ export const createConnectionEvent = async (message: any) => {
     context.globalState.update("datacat-cnnection-list", datacatConnectionList);
 
     sidebarWebview.postMessage(dbData);
-    logger.info(`数据库连接已创建：${connectionName}`);
-    window.showInformationMessage(`数据库连接已创建：${connectionName}`);
+    const resultMsg = `数据库连接已创建: ${connectionName}`;
+    logger.info(resultMsg);
+    window.showInformationMessage(resultMsg);
     commands.executeCommand("datacat.refreshListConnTreeView");
 };
 
@@ -52,7 +53,7 @@ export const clearConnectionEvent = () => {
     // 清空插件全局数据
     const extensionContext = globalProviderManager.get("extensionContext");
     extensionContext.globalState.keys().forEach((key: string) => {
-        if (connectionManager.getPoolNames().includes(key)) {
+        if (connectionManager.getPoolNameList().includes(key)) {
             connectionManager.closeConnection(key);
         }
         extensionContext.globalState.update(key, undefined);

@@ -3,7 +3,7 @@ import { tz } from 'moment-timezone';
 import { createLogger, transports, format } from "winston";
 
 // 当插件载入时触发
-const logger = createLogger({
+export const logger = createLogger({
     level: 'info',
     format: format.combine(
         // 添加时间戳格式化器
@@ -20,5 +20,3 @@ const logger = createLogger({
         new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat.log') }),
     ],
 });
-
-export default logger;
