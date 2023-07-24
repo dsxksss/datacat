@@ -7,9 +7,8 @@ import { logger } from './instance/logger';
 
 export function activate(context: ExtensionContext) {
   logger.info("数据猫已激活");
-  globalProviderManager.set("extensionContext", context);
   console.log(context.globalState.keys());
-
+  
   context.subscriptions.push(commands.registerCommand("datacat.showCreateConnection", () => {
     CreateConnectionPanel.render(context.extensionUri);
   }));
@@ -25,4 +24,8 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(commands.registerCommand('datacat.refreshListConnTreeView', () => {
     treeProvider.refresh();
   }));
+
+  // 全局对象提供
+  globalProviderManager.set("extensionContext", context);
+  globalProviderManager.set("treeProvider", treeProvider);
 }
