@@ -23,8 +23,8 @@ export class SidebarProvider implements WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-    webviewView.webview.onDidReceiveMessage(async (message: any) => {
-      const command = message.command;
+    webviewView.webview.onDidReceiveMessage(async (result: any) => {
+      const { command,message } = result;
 
       switch (command) {
         case "create-connection":

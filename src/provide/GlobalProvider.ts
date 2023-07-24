@@ -24,4 +24,8 @@ export class GlobalProvider {
     public get(key: string): GlobalProviderOption | any {
         return this._globalMap.get(key);
     }
+
+    public delete(key: string): void {
+        this._globalMap.delete(key);
+    }  
 }

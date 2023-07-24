@@ -1,14 +1,15 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
-import { connectionManager, createDBConnection } from "../instance/connectionManager";
+import { sendMsgToWebview } from "../utilities/sendMsgToWebview";
+import { PostOptions } from "../command/options";
 
-export class CreateConnectionPanel {
-  public static currentPanel: CreateConnectionPanel | undefined;
+export class CreateNewPanel {
+  public static currentPanel: CreateNewPanel | undefined;
   private readonly _panel: WebviewPanel;
   private _disposables: Disposable[] = [];
 
-  private constructor(panel: WebviewPanel, extensionUri: Uri) {
+  private constructor(panel: WebviewPanel, extensionUri: Uri, pageUri: string) {
     this._panel = panel;
 
     // 设置一个事件侦听器，以便在面板被释放时（即用户关闭时）侦听 面板或以编程方式关闭面板时）
@@ -19,12 +20,16 @@ export class CreateConnectionPanel {
 
     // 设置额外的监听webview事件
     this._setWebviewMessageListener(this._panel.webview);
+
+    // 设置新面板的页面内容
+    this._setPanelPage(pageUri);
+
   }
 
-  public static render(extensionUri: Uri) {
-    if (CreateConnectionPanel.currentPanel) {
+  public static render(extensionUri: Uri, pageUri: string) {
+    if (CreateNewPanel.currentPanel) {
       // 如果webview面板已存在的话，则显示它
-      CreateConnectionPanel.currentPanel._panel.reveal(ViewColumn.One);
+      CreateNewPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
       // 如果webview面板不存在的话，则创建并且显示它
       const panel = window.createWebviewPanel(
@@ -43,14 +48,14 @@ export class CreateConnectionPanel {
         }
       );
 
-      CreateConnectionPanel.currentPanel = new CreateConnectionPanel(panel, extensionUri);
+      CreateNewPanel.currentPanel = new CreateNewPanel(panel, extensionUri, pageUri);
       return panel;
     }
   }
 
   // 在关闭Webview面板时清理和处置Web视图资源。
   public dispose() {
-    CreateConnectionPanel.currentPanel = undefined;
+    CreateNewPanel.currentPanel = undefined;
 
     // 销毁当前Web视图面板
     this._panel.dispose();
@@ -62,6 +67,10 @@ export class CreateConnectionPanel {
         disposable.dispose();
       }
     }
+  }
+
+  private _setPanelPage(pageUri: string) {
+    sendMsgToWebview(this._panel.webview, PostOptions.setPage, pageUri);
   }
 
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
@@ -100,14 +109,6 @@ export class CreateConnectionPanel {
         switch (command) {
           case "hello":
             window.showInformationMessage(text);
-            return;
-          case "create-connection":
-            (async () => {
-              const { connectionName, database, username, password, host, port, dialect } = message;
-              const connection = await createDBConnection(database, username, password, host, port, dialect);
-              connectionManager.addConnection(connectionName, connection);
-              window.showInformationMessage(`数据库连接已创建：${connectionName}`);
-            })();
             return;
         }
       },

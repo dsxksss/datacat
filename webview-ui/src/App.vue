@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PostOptions } from "./command/options";
 import { vscode } from "./utilities/vscode";
 import { ref } from "vue";
 
@@ -10,7 +11,6 @@ const host = ref("localhost");
 const port = ref(3306);
 const dialect = ref("mysql");
 const loading = ref(false);
-
 const result = ref("对方还没有回应");
 
 const dialectOptions = [
@@ -23,8 +23,8 @@ const dialectOptions = [
 
 function createConnection() {
   loading.value = true;
-  vscode.postMessage({
-    command: "create-connection",
+  vscode.sendMsgToExtension(
+    PostOptions.createConnection, {
     connectionName: connectionName.value,
     database: database.value,
     username: username.value,
@@ -36,14 +36,14 @@ function createConnection() {
 }
 
 function clearConnection() {
-  vscode.postMessage({
-    command: "clear-connection"
-  })
+  vscode.sendMsgToExtension(PostOptions.clearConnectionEvent);
+  result.value = "对方还没有回应";
 }
 
 window.addEventListener('message', event => {
-  const message = event.data;
-  result.value = message
+  const result = event.data;
+  console.log(result);
+  result.value = result.message;
   loading.value = false;
 });
 

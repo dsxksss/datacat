@@ -1,3 +1,4 @@
+import type { PostOptions } from "@/command/options";
 import type { WebviewApi } from "vscode-webview";
 
 /**
@@ -28,9 +29,12 @@ class VSCodeAPIWrapper {
    *
    * @param message Abitrary data (must be JSON serializable) to send to the extension context.
    */
-  public postMessage(message: unknown) {
+  public sendMsgToExtension(command: PostOptions, message: unknown = null) {
     if (this.vsCodeApi) {
-      this.vsCodeApi.postMessage(message);
+      this.vsCodeApi.postMessage({
+        command,
+        message
+      });
     } else {
       console.log(message);
     }

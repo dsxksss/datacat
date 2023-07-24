@@ -1,9 +1,11 @@
-import { Webview, window, commands, ExtensionContext } from 'vscode';
+import { Webview, window, ExtensionContext } from 'vscode';
 import { logger } from '../instance/logger';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { connectionManager, createDBConnection } from '../instance/connectionManager';
 import { globalProviderManager } from '../instance/globalProviderManager';
 import { ConnListTreeOrivuder } from '../provide/TreeProvider';
+import { sendMsgToWebview } from '../utilities/sendMsgToWebview';
+import { PostOptions } from '../command/options';
 
 const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     const tables = await connection.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = '${database}'`, { type: QueryTypes.SELECT });
@@ -23,10 +25,11 @@ export const createConnectionEvent = async (message: any) => {
     const context: ExtensionContext = globalProviderManager.get("extensionContext");
     const sidebarWebview: Webview = globalProviderManager.get("sidebarWebview");
     const treeProvider: ConnListTreeOrivuder = globalProviderManager.get("treeProvider");
+    const globalState = context.globalState;
 
     // 当连接已存在的情况下
-    if (context.globalState.keys().includes(connectionName)) {
-        sidebarWebview.postMessage(context.globalState.get(connectionName));
+    if (globalState.keys().includes(connectionName)) {
+        sendMsgToWebview(sidebarWebview, PostOptions.dbConnection, globalState.get(connectionName));
         return window.showErrorMessage("连接已存在!");
     }
 
@@ -35,17 +38,17 @@ export const createConnectionEvent = async (message: any) => {
 
     const dbData = await getTableAndColumnData(connection, database);
 
-    const datacatConnectionList: string[] = context.globalState.get("datacat-cnnection-list", []);
+    const datacatConnectionList: string[] = globalState.get("datacat-cnnection-list", []);
 
     // 当连接不存在连接列表内，则添加该连接
     if (!datacatConnectionList.includes(connectionName)) {
         datacatConnectionList.push(connectionName);
     }
 
-    context.globalState.update(connectionName, dbData);
-    context.globalState.update("datacat-cnnection-list", datacatConnectionList);
+    globalState.update(connectionName, dbData);
+    globalState.update("datacat-cnnection-list", datacatConnectionList);
 
-    sidebarWebview.postMessage(dbData);
+    sendMsgToWebview(sidebarWebview, PostOptions.dbConnection, dbData);
     const resultMsg = `数据库连接已创建: ${connectionName}`;
     logger.info(resultMsg);
     window.showInformationMessage(resultMsg);
@@ -53,15 +56,15 @@ export const createConnectionEvent = async (message: any) => {
 };
 
 export const clearConnectionEvent = () => {
-    const extensionContext = globalProviderManager.get("extensionContext");
+    const context: ExtensionContext = globalProviderManager.get("extensionContext");
     const treeProvider: ConnListTreeOrivuder = globalProviderManager.get("treeProvider");
 
     // 清空插件全局数据
-    extensionContext.globalState.keys().forEach((key: string) => {
+    context.globalState.keys().forEach((key: string) => {
         if (connectionManager.getPoolNameList().includes(key)) {
             connectionManager.closeConnection(key);
         }
-        extensionContext.globalState.update(key, undefined);
+        context.globalState.update(key, undefined);
     });
     treeProvider.refresh();
     window.showInformationMessage("插件全局数据已清空");
