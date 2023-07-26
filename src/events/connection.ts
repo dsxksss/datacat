@@ -6,6 +6,7 @@ import { globalProviderManager } from '../instance/globalProviderManager';
 import { ConnListTreeOrivuder } from '../provide/TreeProvider';
 import { sendMsgToWebview } from '../utilities/sendMsgToWebview';
 import { PostOptions } from '../command/options';
+import { OpenConnPanel } from '../panels/OpenConnPanel';
 
 const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     const tables = await connection.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = '${database}'`, { type: QueryTypes.SELECT });
@@ -61,10 +62,14 @@ export const clearConnectionEvent = () => {
 
     // 清空插件全局数据
     context.globalState.keys().forEach((key: string) => {
+        const connWebview: OpenConnPanel = globalProviderManager.get(`${key}Webview`);
         if (connectionManager.getPoolNameList().includes(key)) {
             connectionManager.closeConnection(key);
         }
         context.globalState.update(key, undefined);
+        if (connWebview) {
+            connWebview.dispose();
+        }
     });
     treeProvider.refresh();
     window.showInformationMessage("插件全局数据已清空");

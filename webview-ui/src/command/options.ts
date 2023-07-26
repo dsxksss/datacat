@@ -1,5 +1,6 @@
 export enum ReceiveOptions {
     setPage = "setPage",
+    openConnWindow = "openConnWindow",
     dbConnection = "dbConnection",
 }
 
