@@ -11,14 +11,13 @@ provide("theme", theme);
 window.addEventListener('message', event => {
   const result = event.data;
   const { command, message } = result
-  console.log("app.vue get message",result);
+  console.log("App.vue get message",result);
 
   switch (command) {
     case ReceiveOptions.setPage:
       router.push(message.path);
       break;
   }
-
 });
 
 </script>

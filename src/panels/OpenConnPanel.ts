@@ -80,9 +80,10 @@ export class OpenConnPanel {
         const connData = context.globalState.get(this._connName);
 
         sendMsgToWebview(this._panel.webview, PostOptions.setPage, {
-            connData,
             path: `/connPage/${this._connName}`
         });
+
+        sendMsgToWebview(this._panel.webview, PostOptions.openConnWindow, connData);
     }
 
     private _getWebviewContent(webview: Webview, extensionUri: Uri) {

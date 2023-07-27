@@ -11,7 +11,6 @@ const host = ref("localhost");
 const port = ref(3306);
 const dialect = ref("mysql");
 const loading = ref(false);
-const result = ref("对方还没有回应");
 
 const dialectOptions = [
     "mysql",
@@ -37,22 +36,17 @@ function createConnection() {
 
 function clearConnection() {
     vscode.sendMsgToExtension(PostOptions.clearConnectionEvent);
-    result.value = "对方还没有回应";
 }
 
 window.addEventListener('message', event => {
-
     const result = event.data;
-    const { command, message } = result
-    console.log(result);
-
+    const { command } = result
+    console.log("CreateConn.vue get message", result);
     switch (command) {
         case ReceiveOptions.dbConnection:
-            result.value = message;
             loading.value = false;
             break;
     }
-
 });
 
 </script>
@@ -89,9 +83,6 @@ window.addEventListener('message', event => {
             Create Connection</button>
         <button class="btn" @click="clearConnection" :disabled="loading">
             Clear Connection</button>
-        <div>
-            <pre>{{ result }}</pre>
-        </div>
 
     </main>
 </template>
