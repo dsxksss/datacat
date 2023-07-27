@@ -1,61 +1,64 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
+import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, ExtensionContext } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { sendMsgToWebview } from "../utilities/sendMsgToWebview";
 import { PostOptions } from "../command/options";
+import { globalProviderManager } from "../instance/globalProviderManager";
+import { receiveMsgFromWebview } from "../utilities/receiveMsgFromWebview";
 
-export class CreateNewPanel {
-  public static currentPanel: CreateNewPanel | undefined;
+
+export class OpenCreateConnPanel {
+  public static currentPanel: OpenCreateConnPanel | undefined;
   private readonly _panel: WebviewPanel;
   private _disposables: Disposable[] = [];
 
-  private constructor(panel: WebviewPanel, extensionUri: Uri, pageUri: string) {
+  private constructor(panel: WebviewPanel, extensionUri: Uri) {
     this._panel = panel;
 
     // 设置一个事件侦听器，以便在面板被释放时（即用户关闭时）侦听 面板或以编程方式关闭面板时）
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-    // 给webview面包设置要显示的HTML内容
+    // 给webview面板设置要显示的HTML内容
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
 
     // 设置额外的监听webview事件
     this._setWebviewMessageListener(this._panel.webview);
 
     // 设置新面板的页面内容
-    this._setPanelPage(pageUri);
-
+    this._openPage();
   }
 
-  public static render(extensionUri: Uri, pageUri: string) {
-    if (CreateNewPanel.currentPanel) {
+  public static render(extensionUri: Uri) {
+    if (OpenCreateConnPanel.currentPanel) {
       // 如果webview面板已存在的话，则显示它
-      CreateNewPanel.currentPanel._panel.reveal(ViewColumn.One);
+      OpenCreateConnPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
-      // 如果webview面板不存在的话，则创建并且显示它
       const panel = window.createWebviewPanel(
         // 面板类型 view type
-        "showCreateConnection",
+        "createConn",
         // Panel title
-        "连接数据库",
+        "创建连接",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
         {
           // 允许使用脚本
           enableScripts: true,
+          // 隐藏时保留上下文
+          retainContextWhenHidden: true,
           // 限制Web视图仅加载“out”和“webview ui/build”目录中的资源
           localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build")],
         }
       );
-
-      CreateNewPanel.currentPanel = new CreateNewPanel(panel, extensionUri, pageUri);
-      return panel;
+      OpenCreateConnPanel.currentPanel = new OpenCreateConnPanel(panel, extensionUri);
+      globalProviderManager.set("createConnWebview", panel.webview);
     }
+
   }
 
   // 在关闭Webview面板时清理和处置Web视图资源。
   public dispose() {
-    CreateNewPanel.currentPanel = undefined;
+    OpenCreateConnPanel.currentPanel = undefined;
 
     // 销毁当前Web视图面板
     this._panel.dispose();
@@ -69,8 +72,10 @@ export class CreateNewPanel {
     }
   }
 
-  private _setPanelPage(pageUri: string) {
-    sendMsgToWebview(this._panel.webview, PostOptions.setPage, pageUri);
+  private _openPage() {
+    sendMsgToWebview(this._panel.webview, PostOptions.setPage, {
+      path: `/createConn`
+    });
   }
 
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
@@ -101,20 +106,7 @@ export class CreateNewPanel {
   }
 
   private _setWebviewMessageListener(webview: Webview) {
-    webview.onDidReceiveMessage(
-      (message: any) => {
-        const command = message.command;
-        const text = message.text;
-
-        switch (command) {
-          case "hello":
-            window.showInformationMessage(text);
-            return;
-        }
-      },
-      undefined,
-      this._disposables
-    );
+    receiveMsgFromWebview(webview);
   }
 
 }

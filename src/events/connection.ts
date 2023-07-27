@@ -24,13 +24,13 @@ const getTableAndColumnData = async (connection: Sequelize, database: any) => {
 export const createConnectionEvent = async (message: any) => {
     const { connectionName, database, username, password, host, port, dialect } = message;
     const context: ExtensionContext = globalProviderManager.get("extensionContext");
-    const sidebarWebview: Webview = globalProviderManager.get("sidebarWebview");
+    const createConnWebview: Webview = globalProviderManager.get("createConnWebview");
     const treeProvider: ConnListTreeOrivuder = globalProviderManager.get("treeProvider");
     const globalState = context.globalState;
 
     // 当连接已存在的情况下
     if (globalState.keys().includes(connectionName)) {
-        sendMsgToWebview(sidebarWebview, PostOptions.dbConnection, globalState.get(connectionName));
+        sendMsgToWebview(createConnWebview, PostOptions.dbConnection, globalState.get(connectionName));
         return window.showErrorMessage("连接已存在!");
     }
 
@@ -49,7 +49,7 @@ export const createConnectionEvent = async (message: any) => {
     globalState.update(connectionName, dbData);
     globalState.update("datacat-cnnection-list", datacatConnectionList);
 
-    sendMsgToWebview(sidebarWebview, PostOptions.dbConnection, dbData);
+    sendMsgToWebview(createConnWebview, PostOptions.dbConnection, dbData);
     const resultMsg = `数据库连接已创建: ${connectionName}`;
     logger.info(resultMsg);
     window.showInformationMessage(resultMsg);
@@ -62,13 +62,13 @@ export const clearConnectionEvent = () => {
 
     // 清空插件全局数据
     context.globalState.keys().forEach((key: string) => {
-        const connWebview: OpenConnPanel = globalProviderManager.get(`${key}Webview`);
+        const connPanel: OpenConnPanel = globalProviderManager.get(`${key}Panel`);
         if (connectionManager.getPoolNameList().includes(key)) {
             connectionManager.closeConnection(key);
         }
         context.globalState.update(key, undefined);
-        if (connWebview) {
-            connWebview.dispose();
+        if (connPanel) {
+            connPanel.dispose();
         }
     });
     treeProvider.refresh();

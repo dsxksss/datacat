@@ -32,12 +32,6 @@
           "id": "list-connection",
           "name": "连接列表",
           "contextualTitle": "连接列表"
-        },
-        {
-          "type": "webview",
-          "id": "create-connection",
-          "name": "创建连接",
-          "contextualTitle": "创建连接"
         }
       ]
     },
@@ -46,12 +40,22 @@
         "command": "datacat.refreshListConnTreeView",
         "title": "刷新连接",
         "category": "DataCat数据猫🐱"
+      },
+      {
+        "command": "datacat.createConnection",
+        "title": "创建连接",
+        "category": "DataCat数据猫🐱"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "datacat.refreshListConnTreeView",
+          "when": "view == list-connection",
+          "group": "navigation"
+        },
+        {
+          "command": "datacat.createConnection",
           "when": "view == list-connection",
           "group": "navigation"
         }

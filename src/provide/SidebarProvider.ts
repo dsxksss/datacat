@@ -1,8 +1,9 @@
-import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri, window, ExtensionContext } from "vscode";
+import { Webview, TextDocument, WebviewViewProvider, WebviewView, Uri } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
-import { createConnectionEvent, clearConnectionEvent } from "../events/connection";
 import { globalProviderManager } from "../instance/globalProviderManager";
+import { receiveMsgFromWebview } from "../utilities/receiveMsgFromWebview";
+
 
 export class SidebarProvider implements WebviewViewProvider {
   _panel?: WebviewView;
@@ -23,16 +24,7 @@ export class SidebarProvider implements WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-    webviewView.webview.onDidReceiveMessage(async (result: any) => {
-      const { command,message } = result;
-
-      switch (command) {
-        case "create-connection":
-          return await createConnectionEvent(message);
-        case "clear-connection":
-          return clearConnectionEvent();
-      }
-    });
+    receiveMsgFromWebview(webviewView.webview);
   }
 
   public revive(panel: WebviewView) {

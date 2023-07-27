@@ -1,19 +1,13 @@
 import { ExtensionContext, window, commands } from 'vscode';
-import { SidebarProvider } from './provide/SidebarProvider';
 import { ConnListTreeOrivuder } from './provide/TreeProvider';
 import { OpenConnPanel } from './panels/OpenConnPanel';
 import { globalProviderManager } from './instance/globalProviderManager';
 import { logger } from './instance/logger';
+import { OpenCreateConnPanel } from './panels/OpenCreateConnPanel';
 
 export function activate(context: ExtensionContext) {
   logger.info('数据猫已激活');
   console.log(context.globalState.keys());
-
-  // 注册侧边栏webview窗口容器
-  const sidebarProvider = new SidebarProvider(context.extensionUri);
-  context.subscriptions.push(
-    window.registerWebviewViewProvider('create-connection', sidebarProvider),
-  );
 
   // 注册侧边栏treeview面板
   const treeProvider = new ConnListTreeOrivuder(context.globalState);
@@ -22,6 +16,11 @@ export function activate(context: ExtensionContext) {
   // 注册刷新treeview事件
   context.subscriptions.push(commands.registerCommand('datacat.refreshListConnTreeView', () => {
     treeProvider.refresh();
+  }));
+
+  // 注册创建连接事件
+  context.subscriptions.push(commands.registerCommand('datacat.createConnection', () => {
+    OpenCreateConnPanel.render(context.extensionUri);
   }));
 
   // 按下treeviewItem触发的事件
@@ -34,6 +33,5 @@ export function activate(context: ExtensionContext) {
 
   // 全局对象提供
   globalProviderManager.set('extensionContext', context);
-  globalProviderManager.set('sidebarProvider', sidebarProvider);
   globalProviderManager.set('treeProvider', treeProvider);
 }
