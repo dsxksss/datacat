@@ -3,7 +3,7 @@ import { tz } from 'moment-timezone';
 import { createLogger, transports, format } from "winston";
 
 // 当插件载入时触发
-const logger = createLogger({
+export const logger = createLogger({
     level: 'info',
     format: format.combine(
         // 添加时间戳格式化器
@@ -14,11 +14,9 @@ const logger = createLogger({
     ),
     transports: [
         new transports.Console(),
-        new transports.File({ filename: join(__dirname, 'datacat-error.log'), level: 'error' }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat-error.log'), level: 'error' }),
         // debug级别的日志一般为seqielize层面的操作
-        new transports.File({ filename: join(__dirname, 'datacat-debug.log'), level: 'debug' }),
-        new transports.File({ filename: join(__dirname, 'datacat.log') }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat-debug.log'), level: 'debug' }),
+        new transports.File({ filename: join(resolve(__dirname,'..','..'), 'datacat.log') }),
     ],
 });
-
-export default logger;

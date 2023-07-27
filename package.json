@@ -3,6 +3,9 @@
   "publisher": "VentCat",
   "displayName": "DataCat",
   "description": "A plugin for visualizing database operations",
+  "repository": "https://github.com/dsxksss/datacat-ts",
+  "icon": "public/logo.png",
+  "license": "MIT",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.75.0"
@@ -10,17 +13,54 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sidebar-container",
+          "title": "DataCat数据猫🐱",
+          "icon": "public/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sidebar-container": [
+        {
+          "type": "tree",
+          "id": "list-connection",
+          "name": "连接列表",
+          "contextualTitle": "连接列表"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "hello-world.showHelloWorld",
-        "title": "Hello World (Vue): Show"
+        "command": "datacat.refreshListConnTreeView",
+        "title": "刷新连接",
+        "category": "DataCat数据猫🐱"
+      },
+      {
+        "command": "datacat.createConnection",
+        "title": "创建连接",
+        "category": "DataCat数据猫🐱"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "datacat.refreshListConnTreeView",
+          "when": "view == list-connection",
+          "group": "navigation"
+        },
+        {
+          "command": "datacat.createConnection",
+          "when": "view == list-connection",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
