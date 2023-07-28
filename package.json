@@ -3,7 +3,7 @@
   "publisher": "VentCat",
   "displayName": "DataCat",
   "description": "A plugin for visualizing database operations",
-  "repository": "https://github.com/dsxksss/datacat-ts",
+  "repository": "https://github.com/dsxksss/datacat",
   "icon": "public/logo.png",
   "license": "MIT",
   "version": "0.0.1",
