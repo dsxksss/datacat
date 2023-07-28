@@ -1,11 +1,12 @@
-import { createRouter, createWebHashHistory } from "vue-router"
-import NotFound from "./pages/ConnWindow.vue";
+import { createRouter, createWebHistory } from "vue-router"
+import NotFound from "./pages/NotFound.vue";
 import Home from "./pages/Home.vue";
 import CreateConn from "./pages/CreateConn.vue";
 import ConnPage from "./pages/ConnWindow.vue";
 
 
 const routesMap = [
+    // 将匹配所有内容并将其放在 `$route.params.pathMatch` 下
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     { path: '/', component: Home },
     { path: '/createConn', component: CreateConn },
@@ -13,7 +14,7 @@ const routesMap = [
 ]
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes: routesMap
 })
 

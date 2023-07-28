@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PostOptions, ReceiveOptions } from "../command/options";
 import { vscode } from "../utilities/vscode";
+import { $t, i18n } from "../locales"
 import { ref } from "vue";
 
 const connectionName = ref("新建连接");
@@ -38,6 +39,10 @@ function clearConnection() {
     vscode.sendMsgToExtension(PostOptions.clearConnectionEvent);
 }
 
+function changeLang() {
+    i18n.global.locale.value = i18n.global.locale.value == "zh-CN" ? "en" : "zh-CN";
+}
+
 window.addEventListener('message', event => {
     const result = event.data;
     const { command } = result
@@ -53,36 +58,39 @@ window.addEventListener('message', event => {
 
 <template>
     <main class=" space-y-5">
-        <div>连接名称：
+        <div>{{ $t("connName") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text"
                 v-model="connectionName">
         </div>
-        <div>数据库名称：
+        <div>{{ $t("dbName") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="database">
         </div>
-        <div>数据库用户名：
+        <div>{{ $t("dbConnUser") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="username">
         </div>
-        <div>数据库密码：
+        <div>{{ $t("connPwd") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="password">
         </div>
-        <div>连接地址:
+        <div>{{ $t("host") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="text" v-model="host">
         </div>
-        <div>端口号:
+        <div>{{ $t("port") }}:
             <input class="font-bold text-sm input input-bordered input-md w-full max-w-xs" type="number" v-model="port">
         </div>
 
         <div>
-            请选择要连接的数据库类型:<select v-model="dialect" class="select select-bordered w-full max-w-xs">
+            {{ $t("dialect") }}:<select v-model="dialect" class="select select-bordered w-full max-w-xs">
                 <option v-for="dialectOption in dialectOptions" :value="dialectOption">{{ dialectOption }}</option>
             </select>
         </div>
 
         <button class="btn" @click="createConnection" :disabled="loading">
-            Create Connection</button>
+            {{ $t("creatNewConn") }}</button>
         <button class="btn" @click="clearConnection" :disabled="loading">
-            Clear Connection</button>
+            {{ $t("clearConn") }}</button>
+
+        <button class="btn" @click="changeLang">
+            切换语言</button>
 
     </main>
 </template>
