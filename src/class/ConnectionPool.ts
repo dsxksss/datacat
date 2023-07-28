@@ -1,7 +1,9 @@
-import { Webview, window } from 'vscode';
+import { Webview } from 'vscode';
 import { Dialect, Sequelize } from 'sequelize';
 import { logger } from '../instance/logger';
 import { globalProviderManager } from '../instance/globalProviderManager';
+import { sendMsgToWebview } from '../utilities/sendMsgToWebview';
+import { PostOptions } from '../command/options';
 
 export type ConnPoolOptions = Sequelize;
 
@@ -49,7 +51,7 @@ export default class ConnectionPool {
     }
 
     static async createDBConnection(database: string, username: string, password: string, host: string, port: number, dialect: Dialect): Promise<ConnPoolOptions> {
-        const sidebarWebview: Webview = globalProviderManager.get("sidebarWebview");
+        const createConnWebview: Webview = globalProviderManager.get("createConnWebview");
 
         try {
             const sequelize = new Sequelize(database, username, password, {
@@ -64,8 +66,7 @@ export default class ConnectionPool {
         } catch (error: any) {
             const errorMsg = `建立数据库连接失败 ${error}`;
             logger.error(errorMsg);
-            sidebarWebview.postMessage(errorMsg);
-            window.showErrorMessage(errorMsg);
+            sendMsgToWebview(createConnWebview,PostOptions.error, errorMsg);
             throw new Error(error);
         }
     }

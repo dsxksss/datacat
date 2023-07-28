@@ -8,6 +8,9 @@
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
+    "types": [
+      "naive-ui/volar"
+    ],
     "paths": {
       "@/*": [
         "./src/*"

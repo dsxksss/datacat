@@ -5,6 +5,7 @@ export enum ReceiveOptions {
 
 export enum PostOptions {
     setPage = "setPage",
+    error = "error",
     openConnWindow = "openConnWindow",
     dbConnection = "dbConnection",
 }

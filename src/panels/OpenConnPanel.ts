@@ -1,15 +1,15 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn, ExtensionContext } from "vscode";
 import { getUri } from "../utilities/getUri";
-import { getNonce } from "../utilities/getNonce";
+// import { getNonce } from "../utilities/getNonce";
 import { sendMsgToWebview } from "../utilities/sendMsgToWebview";
 import { PostOptions } from "../command/options";
 import { globalProviderManager } from "../instance/globalProviderManager";
 
 
 export class OpenConnPanel {
-    public static currentPanelPool: Map<string,OpenConnPanel> = new Map();
+    public static currentPanelPool: Map<string, OpenConnPanel> = new Map();
     private readonly _panel: WebviewPanel;
-    private readonly _connName:string;
+    private readonly _connName: string;
     private _disposables: Disposable[] = [];
 
     private constructor(panel: WebviewPanel, extensionUri: Uri, connName: string) {
@@ -92,7 +92,7 @@ export class OpenConnPanel {
         // The JS file from the Vue build output
         const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
 
-        const nonce = getNonce();
+        // const nonce = getNonce();
 
         // Tip: Install the es6-string-html VS Code extension to enable code highlighting below
         return /*html*/ `
@@ -101,13 +101,12 @@ export class OpenConnPanel {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>
         </head>
         <body>
           <div id="app"></div>
-          <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
+          <script type="module" src="${scriptUri}"></script>
         </body>
       </html>
     `;
