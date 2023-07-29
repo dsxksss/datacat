@@ -1,12 +1,17 @@
 import { Webview, window, ExtensionContext } from 'vscode';
 import { logger } from '../instance/logger';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { Dialect, QueryTypes, Sequelize } from 'sequelize';
 import { connectionManager, createDBConnection } from '../instance/connectionManager';
 import { globalProviderManager } from '../instance/globalProviderManager';
 import { ConnListTreeOrivuder } from '../provide/TreeProvider';
 import { sendMsgToWebview } from '../utilities/sendMsgToWebview';
 import { PostOptions } from '../command/options';
 import { OpenConnPanel } from '../panels/OpenConnPanel';
+
+export interface ConnectionList {
+    connectionName: string;
+    dialect: Dialect;
+}
 
 const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     const tables = await connection.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = '${database}'`, { type: QueryTypes.SELECT });
@@ -45,11 +50,15 @@ export const createConnectionEvent = async (message: any) => {
 
     const dbData = await getTableAndColumnData(connection, database);
 
-    const datacatConnectionList: string[] = globalState.get("datacat-cnnection-list", []);
 
-    // 当连接不存在连接列表内，则添加该连接
-    if (!datacatConnectionList.includes(connectionName)) {
-        datacatConnectionList.push(connectionName);
+    const datacatConnectionList: ConnectionList[] = globalState.get("datacat-connection-list", []);
+
+    // 检查连接是否存在于连接列表中
+    const connectionExists = datacatConnectionList.some((conn: ConnectionList) => Object.keys(conn).includes(connectionName));
+
+    // 如果连接不存在于连接列表中，则添加该连接
+    if (!connectionExists) {
+        datacatConnectionList.push({ connectionName, dialect });
     }
 
     globalState.update(connectionName, dbData);
