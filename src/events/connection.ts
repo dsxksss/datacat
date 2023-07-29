@@ -13,8 +13,14 @@ const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     const result: { [key: string]: any } = {};
     const promises = tables.map(async (row: any) => {
         const tableName = row["TABLE_NAME"];
-        const columns = await connection.query(`SELECT column_name FROM information_schema.columns WHERE table_schema = '${database}' AND table_name = '${tableName}'`, { type: QueryTypes.SELECT });
-        result[tableName] = columns;
+        const columns = await connection.query(`SELECT * FROM information_schema.columns WHERE table_schema = '${database}' AND table_name = '${tableName}'`, { type: QueryTypes.SELECT });
+        result[tableName] = columns.map((column: any) => ({
+            name: column['COLUMN_NAME'], // 列名（COLUMN_NAME）
+            dataType: column['DATA_TYPE'], // 数据类型（DATA_TYPE）
+            isNullable: column['IS_NULLABLE'], // 是否允许为空（IS_NULLABLE）
+            maxLength: column['CHARACTER_MAXIMUM_LENGTH'], // 最大长度（CHARACTER_MAXIMUM_LENGTH）
+            defaultValue: column['COLUMN_DEFAULT'] // 默认值（COLUMN_DEFAULT）
+        }));
     });
     await Promise.all(promises);
 
