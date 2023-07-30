@@ -9,12 +9,14 @@ import { globalProviderManager } from "../instance/globalProviderManager";
 export class OpenConnPanel {
     public static currentPanelPool: Map<string, OpenConnPanel> = new Map();
     private readonly _panel: WebviewPanel;
-    private readonly _connName: string;
+    private readonly _connectionName: string;
+    private readonly _tableName: string;
     private _disposables: Disposable[] = [];
 
-    private constructor(panel: WebviewPanel, extensionUri: Uri, connName: string) {
+    private constructor(panel: WebviewPanel, extensionUri: Uri, connectionName: string, tabelName: string) {
         this._panel = panel;
-        this._connName = connName;
+        this._connectionName = connectionName;
+        this._tableName = tabelName;
 
         // 设置一个事件侦听器，以便在面板被释放时（即用户关闭时）侦听 面板或以编程方式关闭面板时）
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -29,17 +31,17 @@ export class OpenConnPanel {
         this._openPage();
     }
 
-    public static render(extensionUri: Uri, labelName: string) {
-        if (OpenConnPanel.currentPanelPool.has(labelName)) {
+    public static render(extensionUri: Uri, connectionName: string, tabelName: string) {
+        if (OpenConnPanel.currentPanelPool.has(tabelName)) {
             // 如果webview面板已存在的话，则显示它
-            OpenConnPanel.currentPanelPool.get(labelName)?._panel.reveal(ViewColumn.One);
+            OpenConnPanel.currentPanelPool.get(tabelName)?._panel.reveal(ViewColumn.One);
         } else {
             // 建并且显示webview面板
             const panel = window.createWebviewPanel(
                 // 面板类型 view type
-                labelName,
+                tabelName,
                 // Panel title
-                labelName,
+                tabelName,
                 // The editor column the panel should be displayed in
                 ViewColumn.One,
                 // Extra panel configurations
@@ -53,15 +55,15 @@ export class OpenConnPanel {
                 }
             );
 
-            const connPanel = new OpenConnPanel(panel, extensionUri, labelName);
-            OpenConnPanel.currentPanelPool.set(labelName, connPanel);
-            globalProviderManager.set(`${labelName}Panel`, connPanel);
+            const connPanel = new OpenConnPanel(panel, extensionUri, connectionName, tabelName);
+            OpenConnPanel.currentPanelPool.set(tabelName, connPanel);
+            globalProviderManager.set(`${tabelName}Panel`, connPanel);
         }
     }
 
     // 在关闭Webview面板时清理和处置Web视图资源。
     public dispose() {
-        OpenConnPanel.currentPanelPool.delete(this._connName);
+        OpenConnPanel.currentPanelPool.delete(this._connectionName);
 
         // 销毁当前Web视图面板
         this._panel.dispose();
@@ -77,13 +79,15 @@ export class OpenConnPanel {
 
     private _openPage() {
         const context: ExtensionContext = globalProviderManager.get("extensionContext");
-        const connData = context.globalState.get(this._connName);
+        const connData = context.globalState.get(this._connectionName) as { [key: string]: any };
+        console.log(connData);
+        const result = connData[this._tableName];
 
         sendMsgToWebview(this._panel.webview, PostOptions.setPage, {
-            path: `/connPage/${this._connName}`
+            path: `/connPage/${this._tableName}`
         });
 
-        sendMsgToWebview(this._panel.webview, PostOptions.openConnWindow, connData);
+        sendMsgToWebview(this._panel.webview, PostOptions.openConnWindow, result);
     }
 
     private _getWebviewContent(webview: Webview, extensionUri: Uri) {

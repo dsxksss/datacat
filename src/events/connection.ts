@@ -3,15 +3,11 @@ import { logger } from '../instance/logger';
 import { Dialect, QueryTypes, Sequelize } from 'sequelize';
 import { connectionManager, createDBConnection } from '../instance/connectionManager';
 import { globalProviderManager } from '../instance/globalProviderManager';
-import { ConnListTreeOrivuder } from '../provide/TreeProvider';
+import { ConnListTreeProvider } from '../provide/TreeProvider';
 import { sendMsgToWebview } from '../utilities/sendMsgToWebview';
 import { PostOptions } from '../command/options';
 import { OpenConnPanel } from '../panels/OpenConnPanel';
-
-export interface ConnectionList {
-    connectionName: string;
-    dialect: Dialect;
-}
+import { ConnTableItem, ConnectionListItem, TableField } from '../interface/ConnectionList';
 
 const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     const tables = await connection.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = '${database}'`, { type: QueryTypes.SELECT });
@@ -32,11 +28,33 @@ const getTableAndColumnData = async (connection: Sequelize, database: any) => {
     return result;
 };
 
+const convertData = (data: { [key: string]: any }, connectionName: string, dialect: Dialect): ConnectionListItem => {
+    const tableItems: ConnTableItem[] = [];
+
+    for (const tableName in data) {
+        const fields: TableField[] = data[tableName].map((column: any) => ({
+            fieldName: column.name,
+            fieldType: column.dataType,
+        }));
+
+        tableItems.push({
+            tableName: tableName,
+            fields: fields,
+        });
+    }
+
+    return {
+        connectionName: connectionName,
+        dialect: dialect,
+        tableItems: tableItems,
+    };
+};
+
 export const createConnectionEvent = async (message: any) => {
     const { connectionName, database, username, password, host, port, dialect } = message;
     const context: ExtensionContext = globalProviderManager.get("extensionContext");
     const createConnWebview: Webview = globalProviderManager.get("createConnWebview");
-    const treeProvider: ConnListTreeOrivuder = globalProviderManager.get("treeProvider");
+    const treeProvider: ConnListTreeProvider = globalProviderManager.get("treeProvider");
     const globalState = context.globalState;
 
     // 当连接已存在的情况下
@@ -51,18 +69,19 @@ export const createConnectionEvent = async (message: any) => {
     const dbData = await getTableAndColumnData(connection, database);
 
 
-    const datacatConnectionList: ConnectionList[] = globalState.get("datacat-connection-list", []);
+    const datacatConnectionList: ConnectionListItem[] = globalState.get("datacat-connection-list", []);
 
     // 检查连接是否存在于连接列表中
-    const connectionExists = datacatConnectionList.some((conn: ConnectionList) => Object.keys(conn).includes(connectionName));
+    const connectionExists = datacatConnectionList.some((conn: ConnectionListItem) => conn.connectionName === connectionName);
 
     // 如果连接不存在于连接列表中，则添加该连接
     if (!connectionExists) {
-        datacatConnectionList.push({ connectionName, dialect });
+        datacatConnectionList.push(convertData(dbData, connectionName, dialect));
     }
 
     globalState.update(connectionName, dbData);
     globalState.update("datacat-cnnection-list", datacatConnectionList);
+    console.log(datacatConnectionList);
 
     sendMsgToWebview(createConnWebview, PostOptions.dbConnection, dbData);
     const resultMsg = `数据库连接已创建: ${connectionName}`;
@@ -73,7 +92,7 @@ export const createConnectionEvent = async (message: any) => {
 
 export const clearConnectionEvent = () => {
     const context: ExtensionContext = globalProviderManager.get("extensionContext");
-    const treeProvider: ConnListTreeOrivuder = globalProviderManager.get("treeProvider");
+    const treeProvider: ConnListTreeProvider = globalProviderManager.get("treeProvider");
 
     // 清空插件全局数据
     context.globalState.keys().forEach((key: string) => {
