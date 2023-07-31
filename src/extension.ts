@@ -5,9 +5,6 @@ import { globalProviderManager } from './instance/globalProviderManager';
 import { logger } from './instance/logger';
 import { OpenCreateConnPanel } from './panels/OpenCreateConnPanel';
 
-// FIXME: 创建连接会覆盖问题
-// FIXME: 清空全部连接不会关闭其对应面板问题 
-
 export function activate(context: ExtensionContext) {
   logger.info('数据猫已激活');
   console.log(context.globalState.keys());

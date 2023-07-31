@@ -80,7 +80,7 @@ export const createConnectionEvent = async (message: any) => {
     }
 
     globalState.update(connectionName, dbData);
-    globalState.update("datacat-cnnection-list", datacatConnectionList);
+    globalState.update("datacat-connection-list", datacatConnectionList);
     console.log(datacatConnectionList);
 
     sendMsgToWebview(createConnWebview, PostOptions.dbConnection, dbData);
@@ -96,15 +96,14 @@ export const clearConnectionEvent = () => {
 
     // 清空插件全局数据
     context.globalState.keys().forEach((key: string) => {
-        const connPanel: OpenConnPanel = globalProviderManager.get(`${key}Panel`);
         if (connectionManager.getPoolNameList().includes(key)) {
             connectionManager.closeConnection(key);
         }
         context.globalState.update(key, undefined);
-        if (connPanel) {
-            connPanel.dispose();
-        }
     });
+
+    // 关闭打开的面板
+    OpenConnPanel.disposeAll();
     treeProvider.refresh();
     window.showInformationMessage("插件全局数据已清空");
 };

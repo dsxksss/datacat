@@ -46,7 +46,7 @@ export class ConnListTreeProvider implements TreeDataProvider<ConnListTreeItem> 
     }
 
     getChildren(element?: ConnListTreeItem): Thenable<ConnListTreeItem[]> {
-        const items = this.globalState.get<ConnectionListItem[]>('datacat-cnnection-list') || [];
+        const items = this.globalState.get<ConnectionListItem[]>('datacat-connection-list') || [];
         if (element) {
             // 返回子Items
             const conn: ConnTableItem[] = items.find(item => item.connectionName === element.label)?.tableItems ?? [];
